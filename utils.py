@@ -55,28 +55,6 @@ def data_augmentation(image, mode):
         out = np.flipud(out)
     return np.transpose(out, (2,0,1))
 
-def data_aug(img, mode):
-
-    if mode ==0:
-        image=img
-    elif mode == 1:
-        image =torch.flip(img,[2])
-    elif mode == 2:
-        image= torch.flip(img,[3])
-    elif mode == 3:
-        image= torch.flip(img,[2,3])
-    elif mode == 4:
-        image = img.transpose(2,3)
-    elif mode == 5:
-        image = img.transpose(2,3)
-        image = torch.flip(img,[2])
-    elif mode == 6:
-        image = img.transpose(2,3)
-        image = torch.flip(img,[3])
-    elif mode == 7:
-        image = img.transpose(2,3)
-        image = torch.flip(img,[2,3])
-    return image
 def load_img(filepath):
     img = cv2.imread(filepath,1)
     img = img.astype(np.float32)
