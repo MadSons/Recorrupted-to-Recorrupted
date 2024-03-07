@@ -8,6 +8,7 @@ import torchvision.utils as utils
 from torch.autograd import Variable
 from model import DnCNN
 import sys
+import math
 
 #device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 from torch.utils.data import DataLoader, Dataset
@@ -17,8 +18,7 @@ def test_PSNR(img, clean):
     PSNR = 0
     for i in range(img.shape[0]):
         PSNR += peak_signal_noise_ratio(clean[i,:,:,:], img[i,:,:,:], data_range=1)
-    return (PSNR/img.shape[0])
-
+    return PSNR/img.shape[0]
 class CustomDataset(Dataset):
     def __init__(self, data, targets):
         self.data = data
@@ -57,17 +57,14 @@ sigma = 25
 e = sigma/255.
 
 train_dataset = CustomDataset(clean, noisy)
-print(len(train_dataset))
 train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
-print(len(train_loader))
 # create the R2R network
 model = DnCNN(channels=1, num_of_layers=17, kernel_size=3, padding=1, features=64)
-loss_func = nn.MSELoss()
+
+loss_func = nn.MSELoss(size_average=False)
 optimizer = optim.Adam(model.parameters(), lr=lr)
 
-
 for epoch in range(epochs):
-
     for i, data in enumerate(train_loader):
         # get data for each batch
         clean, y = data
@@ -84,7 +81,7 @@ for epoch in range(epochs):
 
         # loss
         y_hat = model(y_hat)
-        loss = loss_func(y_hat, y_tilde) / y_tilde.shape[0]*2
+        loss = loss_func(y_hat, y_tilde) / (y_tilde.shape[0]*2)
 
         loss.backward()
         optimizer.step()
@@ -93,10 +90,14 @@ for epoch in range(epochs):
         model.eval()
         y_hat = torch.clamp(model(y), 0, 1)
 
-        psnr_train = test_PSNR(y_hat, clean)
-        
-        """ print("%s [epoch %d][%d/%d] loss: %.4f  PSNR: %.4f" %
-        (opt.training,epoch+1, i+1, len(loader_train), loss.item(),psnr_train))"""
+
+        psnr = test_PSNR(y_hat.data.numpy(), clean.data.numpy())
+
+        print(f'Epoch {epoch+1}/{epochs}, Batch {i+1}/{len(train_loader)}, Loss: {loss.item():.4f}, PSNR: {psnr:.4f}')
+
+
+torch.save(model.state_dict(), 'model.pth')
+print('Model saved')
 
 
 

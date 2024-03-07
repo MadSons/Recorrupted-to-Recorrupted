@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
     sigma = 25
     patch = 40
-    stride = 10 # paper stride = 1
+    stride = 5 # paper stride = 1
 
     all_patches_aug_noisy = []
     all_patches_aug = []
