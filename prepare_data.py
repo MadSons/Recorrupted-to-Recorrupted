@@ -7,7 +7,6 @@ def noise(sigma, img):
     return img + np.random.normal(0, sigma / 255., img.shape)
 
 def create_patches(img, patch_size, stride):
-    
     patches = []
     for i in range(0, img.shape[0]-patch_size, stride):
         for j in range(0, img.shape[1]-patch_size, stride):
@@ -44,8 +43,6 @@ if __name__ == '__main__':
     sigma = 25
     patch = 40
     stride = 10 # paper stride = 1
-
-    # 196 patches per image, 10 images
 
     all_patches_aug_noisy = []
     all_patches_aug = []
